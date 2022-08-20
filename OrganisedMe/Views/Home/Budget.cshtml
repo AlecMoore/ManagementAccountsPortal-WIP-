@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Budget";
+}
+
+ <form action="/Home/AddTransaction" method="post">
+    <div>
+    <label for="cars">Choose a car:</label>
+
+    <select name="cars" id="cars">
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+    </select> 
+    </div>
+
+    <div>
+    <label for="account">Bank Account:</label><br>
+    <input type="text" id="account" name="account"><br>
+    <label for="amount">Amount:</label><br>
+    <input type="text" id="amount" name="amount"><br>
+    <label for="nominal code">Nominal code:</label><br>
+    <input type="text" id="nominal code" name="nominal code">
+    </div>
+
+    <div>
+        <label for="date">Date:</label>
+        <input type="date" id="start" name="date" value="2018-07-22" min="2018-01-01" max="2018-12-31">
+    </div>
+    <div>
+            <label for="narrative">Narrative:</label><br>
+            <input type="text" id="narrative" name="narrative">
+    </div>
+
+
+     <button type="submit">Click Me!</button>
+</form> 
+
