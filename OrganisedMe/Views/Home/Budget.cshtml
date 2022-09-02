@@ -1,36 +1,175 @@
-﻿@{
+﻿@using OrganisedMe.StoredProcedures
+@{
     ViewData["Title"] = "Budget";
+
+
+    List<Transaction> transactions = StoredProcedures.GetTransactions();
 }
 
- <form action="/Home/AddTransaction" method="post">
-    <div>
-    <label for="cars">Choose a car:</label>
+<style>
+    /* The Modal (background) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
 
-    <select name="cars" id="cars">
-        <option value="Income">Income</option>
-        <option value="Expense">Expense</option>
-    </select> 
-    </div>
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
 
-    <div>
-    <label for="account">Bank Account:</label><br>
-    <input type="text" id="account" name="account"><br>
-    <label for="amount">Amount:</label><br>
-    <input type="text" id="amount" name="amount"><br>
-    <label for="nominal code">Nominal code:</label><br>
-    <input type="text" id="nominal code" name="nominal code">
-    </div>
+    /* The Close Button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
-    <div>
-        <label for="date">Date:</label>
-        <input type="date" id="start" name="date" value="2018-07-22" min="2018-01-01" max="2018-12-31">
-    </div>
-    <div>
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    table{
+    table-layout: fixed;
+    width: 600px;
+    }
+</style>
+
+
+<!-- Trigger/Open The Modal -->
+<button id="myBtn">Open Modal</button>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <form action="/Home/AddTransaction" method="post">
+        <div>
+            <label for="Type">Choose a type:</label>
+
+            <select class="required" name="Type" id="Type">
+                <option value="0">Income</option>
+                <option value="1">Expense</option>
+                <option value="2">Asset</option>
+            </select> 
+        </div>
+
+        <div>
+            <label for="account">Bank Account:</label><br>
+            <input class="required" type="text" id="account" name="account"><br>
+            <label class="required" for="amount">Amount:</label><br>
+            <input class="required" type="text" id="amount" name="amount"><br>
+            <label for="CostCode">Nominal code:</label><br>
+            <input class="required" type="text" id="CostCode" name="CostCode">
+        </div>
+
+        <div>
+            <label for="date">Date:</label>
+            <input class="required" type="date" id="start" name="date" value="2018-07-22" min="2018-01-01">
+        </div>
+        <div>
             <label for="narrative">Narrative:</label><br>
-            <input type="text" id="narrative" name="narrative">
-    </div>
+            <input class="required" type="text" id="narrative" name="narrative">
+        </div>
 
 
-     <button type="submit">Click Me!</button>
-</form> 
+         <button type="submit">Click Me!</button>
+    </form>
+  </div>
 
+</div>
+ 
+
+<table class="mt-4">
+  <tr>
+    <th>Id</th>
+    <th>Type</th>
+    <th>Amount</th>
+    <th>Cost Code</th>
+    <th>Date</th>
+    <th>Account</th>
+    <th>Narrative</th>
+  </tr>
+    @{
+        foreach (Transaction t in transactions)
+        {
+              <tr>
+                <td>@t.Id</td>
+                <td>@t.Type</td>
+                <td>@t.Amount</td>
+                <td>@t.CostCode</td>
+                <td>@t.Date.ToString("dd/MM/yy")</td>
+                <td>@t.Account</td>
+                <td style="width: 1000px !important;">@t.Narrative</td>
+                <td> <span onclick="remove(@t.Id)" id="@t.Id" class="close delete">&times;</span></td>
+              </tr>
+        }
+        
+  }
+  
+</table>
+
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on the button, open the modal
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    async function remove(Id){
+        var data = new FormData()
+        data.append("Id", Id)
+
+        await fetch ("/Home/RemoveTransaction",
+        {
+            method: "POST",
+            body: data
+        })
+        .then((response) => {
+            console.log('Success');
+            location.reload();
+        })
+        .catch((error) => {
+            console.log('Fail');
+        })
+    }
+
+</script>

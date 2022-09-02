@@ -34,26 +34,60 @@ namespace OrganisedMe.StoredProcedures
             }
         }
 
-        public static List<Transaction> GetTransactions(int Id)
+        public static bool DeleteTransaction(int Id)
         {
             try
             {
                 using (SqlConnection sqlCon = new SqlConnection(SqlconString))
                 {
                     sqlCon.Open();
-                    SqlCommand sql_cmnd = new SqlCommand("dbo.InsertTransaction", sqlCon);
+                    SqlCommand sql_cmnd = new SqlCommand("dbo.DeleteTransaction", sqlCon);
                     sql_cmnd.CommandType = CommandType.StoredProcedure;
                     sql_cmnd.Parameters.AddWithValue("@Id", Id);
-                    DataTable st = (DataTable)sql_cmnd.ExecuteScalar();
+                    sql_cmnd.ExecuteNonQuery();
                     sqlCon.Close();
 
-                    List<Transaction> transactions
                     return true;
                 }
             }
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        public static List<Transaction> GetTransactions()
+        {
+            try
+            {
+                DataTable dataTable = new DataTable();
+
+                using (SqlConnection sqlCon = new SqlConnection(SqlconString))
+                {
+                    sqlCon.Open();
+                    SqlCommand sql_cmnd = new SqlCommand("dbo.GetTransactions", sqlCon);
+                    sql_cmnd.CommandType = CommandType.StoredProcedure;
+                    var dataReader = sql_cmnd.ExecuteReader();
+                    //sqlCon.Close();
+
+                    List<Transaction> transactions = new List<Transaction>();
+                    while(dataReader.Read())
+                    {
+                        Transaction t = new Transaction();
+                        foreach (var prop in t.GetType().GetProperties())
+                        {
+                            var propType = prop.PropertyType;
+                            prop.SetValue(t, Convert.ChangeType(dataReader[prop.Name].ToString(), propType));
+                        }
+                        transactions.Add(t);
+                    }
+
+                    return transactions;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 
