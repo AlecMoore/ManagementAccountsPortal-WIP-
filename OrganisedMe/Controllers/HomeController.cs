@@ -16,7 +16,9 @@ namespace OrganisedMe.Controllers
 
         public IActionResult Index()
         {
-            return View();
+
+            List<MA> ma = GetMA();
+            return View(ma);
         }
 
         public IActionResult Budget()
@@ -52,28 +54,34 @@ namespace OrganisedMe.Controllers
         {
             List<MA> result = new List<MA>();
             List<Transaction> transactions = StoredProcedures.StoredProcedures.GetTransactions();
-            List<DateTime> dates = new List<DateTime>();
-            //var matches = transactions.Where(t => t.Date == nameToExtract);
+
             foreach (Transaction transaction in transactions)
             {
-                if (result.Count <1)
+                DateTime tEndDate = new DateTime(transaction.Date.Year, transaction.Date.Month, DateTime.DaysInMonth(transaction.Date.Year, transaction.Date.Month));
+
+                int i = result.FindIndex(item => item.CostCode == transaction.CostCode);
+                if (i >= 0)
                 {
-                    MA mA = new MA(transaction.CostCode, transaction.Account, transaction.Type, transaction.Amount, new DateTime(transaction.Date.Year, transaction.Date.Month, DateTime.DaysInMonth(transaction.Date.Year, transaction.Date.Month)), (decimal)0.0);
+                    int j = result[i].Details.FindIndex(item => item.Date == tEndDate);
+                    if (j >= 0)
+                    {
+                        result[i].Details[j].Amount += transaction.Amount;
+                    } else
+                    {
+                        MADetails details = new MADetails(transaction.Amount, tEndDate, (decimal)0.0);
+                        result[i].Details.Add(details);
+                    }
+                } else
+                {
+                    MA mA = new MA(transaction.CostCode, transaction.Account, transaction.Type);
+                    MADetails details = new MADetails(transaction.Amount, tEndDate, (decimal)0.0);
+                    mA.Details.Add(details);
                     result.Add(mA);
                 }
-                else
-                {
-                    MA mA = new MA(transaction.CostCode, transaction.Account, transaction.Type, transaction.Amount, new DateTime(transaction.Date.Year, transaction.Date.Month, DateTime.DaysInMonth(transaction.Date.Year, transaction.Date.Month)), (decimal)0.0);
-
-                    var temp = result.Where(ma => ma.Date == mA.Date);
-                    if (temp != null){
-
-                        result.Where(ma => ma.Date == mA.Date).Amount
-                    }
-                }
+                
             }
 
-            return result;
+            return (List<MA>)result.GroupBy(g => g.CostCode);
 
         }
     }

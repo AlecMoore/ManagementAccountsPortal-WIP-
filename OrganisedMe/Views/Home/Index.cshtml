@@ -1,8 +1,56 @@
-﻿@{
+﻿@model List<MA>
+@using System.Linq
+@using OrganisedMe.Models
+@{
     ViewData["Title"] = "Home Page";
+
+    List<MA> AssetMA = new List<MA>();
+    List<MA> IncomeMA = new List<MA>();
+    List<MA> ExpenseMA = new List<MA>();
+    foreach(MA ma in Model)
+    {
+        if (ma.Type == OrganisedMe.Models.Type.Asset)
+        {
+            AssetMA.Add(ma);
+        } 
+        else if(ma.Type == OrganisedMe.Models.Type.Income)
+        {
+            IncomeMA.Add(ma);
+        } 
+        else if (ma.Type == OrganisedMe.Models.Type.Expense)
+        {
+            ExpenseMA.Add(ma);
+        }
+    }
+
+    AssetMA = AssetMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
+    IncomeMA = IncomeMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
+    ExpenseMA = ExpenseMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<table class="mt-4">
+  <tr>
+    <th>Bank</th>
+        @{
+            foreach (MA ma in AssetMA)
+            {
+                
+            }
+        }
+    <th>Cash</th>
+  </tr>
+
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+ 
+  }
+  
+</table>
