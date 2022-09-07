@@ -4,52 +4,57 @@
 @{
     ViewData["Title"] = "Home Page";
 
-    List<MA> AssetMA = new List<MA>();
-    List<MA> IncomeMA = new List<MA>();
-    List<MA> ExpenseMA = new List<MA>();
-    foreach(MA ma in Model)
-    {
-        if (ma.Type == OrganisedMe.Models.Type.Asset)
-        {
-            AssetMA.Add(ma);
-        } 
-        else if(ma.Type == OrganisedMe.Models.Type.Income)
-        {
-            IncomeMA.Add(ma);
-        } 
-        else if (ma.Type == OrganisedMe.Models.Type.Expense)
-        {
-            ExpenseMA.Add(ma);
-        }
-    }
+    List<MA> assets = Model.FindAll(ma => ma.Type == OrganisedMe.Models.Type.Asset);
+    List<MA> income = Model.FindAll(ma => ma.Type == OrganisedMe.Models.Type.Income);
+    List<MA> expense = Model.FindAll(ma => ma.Type == OrganisedMe.Models.Type.Expense);
 
-    AssetMA = AssetMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
-    IncomeMA = IncomeMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
-    ExpenseMA = ExpenseMA.OrderBy(e => e.Date).ThenBy(e => e.Date).ToList();
 }
 
 <table class="mt-4">
   <tr>
     <th>Bank</th>
+    @{
+        List<decimal> totalsRow = new List<decimal>();
+        foreach (MADetails details in assets[0].Details)
+        {
+                <th>@details.Date</th>
+                totalsRow.Add((decimal)0.0);
+        }
+        totalsRow.Add((decimal)0.0); //total column
+    }
+        <th>Cash</th>
+    </tr>
+    @{
+        
+        foreach (MA ma in assets)
+        {
+            <tr>
+                <td>@ma.Account</td>
+                @{
+                    decimal rowTotal = (decimal)0.0;
+                    foreach(var item in  ma.Details.Select((value, i) => (value, i)))
+                    {
+                        MADetails details = item.value;
+                        <td>@details.Amount</td>
+                        rowTotal += details.Amount;
+                        totalsRow[item.i] = details.Amount;
+                    }
+                    totalsRow[^1] += rowTotal;
+                }
+                <td>@rowTotal</td>
+            </tr>
+        }
+    }
+    <tr>
+        <td>TOTAL</td>
         @{
-            foreach (MA ma in AssetMA)
+            foreach(decimal value in totalsRow)
             {
-                
+                <td>@value</td>
             }
         }
-    <th>Cash</th>
-  </tr>
-
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
     </tr>
+    
  
   }
   

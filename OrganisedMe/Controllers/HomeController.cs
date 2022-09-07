@@ -80,7 +80,10 @@ namespace OrganisedMe.Controllers
                 }
                 
             }
-
+            foreach (MA mA in result)
+            {
+                mA.Details = (List<MADetails>)mA.Details.OrderBy(m => m.Date);
+            }
             return (List<MA>)result.GroupBy(g => g.CostCode);
 
         }
